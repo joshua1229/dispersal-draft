@@ -426,10 +426,12 @@ export default function App() {
   }
 
   function toggleDisperse(rid) {
-    setDisperseRosterIds(prev =>
-      prev.includes(rid) ? prev.filter(x => x !== rid) : [...prev, rid]
-    );
-    setDraftRosterIds(prev => prev.filter(x => x !== rid));
+    setDisperseRosterIds(prev => {
+      const next = prev.includes(rid) ? prev.filter(x => x !== rid) : [...prev, rid];
+      // Auto-update draft list: everyone NOT being dispersed is eligible to draft
+      setDraftRosterIds(rosters.map(r => r.roster_id).filter(id => !next.includes(id)));
+      return next;
+    });
   }
 
   function toggleDraft(rid) {
@@ -560,7 +562,7 @@ export default function App() {
               <div className="card">
                 <div className="card-title"><span className="step-badge">3</span> Teams Drafting</div>
                 <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 12 }}>
-                  These teams pick from the pool. Dispersed teams are excluded.
+                  All remaining teams are automatically included. Click to remove any that should sit out.
                 </div>
                 <div className="team-grid">
                   {rosters.filter(r => !disperseRosterIds.includes(r.roster_id)).map(r => {
