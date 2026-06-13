@@ -2,7 +2,9 @@ import { useState, useRef } from "react";
 
 // All Sleeper calls go through our Vercel proxy to avoid CORS
 async function sleeperFetch(path) {
-  const res = await fetch(`/api/sleeper?path=${encodeURIComponent(path)}`);
+  // Strip any leading slash so we never double-up
+  const cleanPath = path.replace(/^\/+/, "");
+  const res = await fetch(`/api/sleeper?path=${cleanPath}`);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `Request failed (${res.status})`);
